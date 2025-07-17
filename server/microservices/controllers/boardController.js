@@ -1,4 +1,4 @@
-const Board = require('../common/models/Board');
+const Board = require('../../common/models/Board');
 
 class BoardController {
   async createBoard(req, res, next) {

@@ -1,10 +1,11 @@
-const User = require("../common/models/User");
+const User = require("../../common/models/User");
 const bcrypt = require("bcrypt");
-const { generateTokens } = require("../common/utils/tokenUtils");
+const { generateTokens } = require("../../common/utils/tokenUtils");
 
 class AuthController {
   async register(req, res) {
     try {
+      console.log("📦 Registering user:", req.body); // TEMP LOG
       const { name, email, password, role } = req.body;
       const hashedPassword = await bcrypt.hash(password, 10);    
       const user = new User({ name, email, password: hashedPassword, role });

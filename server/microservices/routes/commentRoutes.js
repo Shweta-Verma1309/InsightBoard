@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
 
-const commentController= require("../microservices/controllers/commentController");
+const commentController= require("../controllers/commentController");
 
 
 
-const auth = require("../common/middleware/authMiddleware");
+const auth = require("../../common/middleware/authMiddleware");
 
 router.post("/", auth, commentController.createComment);
 router.get("/post/:postId", auth, commentController.getCommentsByPost);

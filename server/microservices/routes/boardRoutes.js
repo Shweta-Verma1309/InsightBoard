@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
-const boardController = require("../microservices/controllers/boardController");
+const boardController = require("../controllers/boardController");
 
-const auth = require("../common/middleware/authMiddleware");
+const auth = require("../../common/middleware/authMiddleware");
 
 // Routes
 router.post("/", auth, boardController.createBoard);

@@ -38,7 +38,7 @@ export const authService = {
 
   async signup(credentials: SignupCredentials): Promise<AuthResponse> {
     try {
-      const response = await axiosClient.post('/auth/signup', credentials);
+      const response = await axiosClient.post('/auth/register', credentials);
       const { user, accessToken, refreshToken } = response.data;
       
       // Set cookies

@@ -1,4 +1,4 @@
-const Post = require('../common/models/Post');
+const Post = require('../../common/models/Post');
 
 class PostController {
   async createPost(req, res, next) {

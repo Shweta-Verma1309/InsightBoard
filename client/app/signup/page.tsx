@@ -47,8 +47,19 @@ export default function Signup() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log("suru hogya");
     e.preventDefault();
+
+    console.log("Form Data Submitted:", {
+    name: formData.name,
+    email: formData.email,
+    password: formData.password,
+    confirmPassword: formData.confirmPassword,
+    role: formData.role,
+  });
+
     setError('');
+    console.log("1b");
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
@@ -63,15 +74,17 @@ export default function Signup() {
     setIsLoading(true);
 
     try {
-      const response = await authService.mockSignup({
+      console.log("1");
+      const response = await authService.signup({
         name: formData.name,
         email: formData.email,
         password: formData.password,
         role: formData.role,
       });
-      
+      console.log("2");
       login(response.user);
       toast.success(`Welcome to InsightBoard, ${response.user.name}!`);
+      console.log("3");
       router.push('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Signup failed');

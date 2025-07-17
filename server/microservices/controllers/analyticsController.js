@@ -1,5 +1,5 @@
-const Post = require('../common/models/Post');
-const Comment = require('../common/models/Comment');
+const Post = require('../../common/models/Post');
+const Comment = require('../../common/models/Comment');
 
 class AnalyticsController {
   async getTopVotedPosts(req, res, next) {
