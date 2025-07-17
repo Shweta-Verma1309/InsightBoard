@@ -1,8 +1,8 @@
 const http = require('http');
-const app = require('./app');
+const app = require('./microservices/app');
 const server = http.createServer(app);
 const { Server } = require('socket.io');
-const socketHandlers = require('./sockets/socketHandlers');
+const socketHandlers = require('./common/utils/socketHandlers');
 
 const io = new Server(server, {
   cors: {
@@ -12,7 +12,7 @@ const io = new Server(server, {
 });
 
 require('dotenv').config();
-require('./config/db')();
+require('./common/config/db')();
 
 io.on('connection', (socket) => {
   socketHandlers(io, socket);
