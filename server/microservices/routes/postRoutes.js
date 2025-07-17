@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 
 const postController = require("../microservices/controllers/postController");
-
 const auth = require("../common/middleware/authMiddleware");
 
 router.post("/", auth, postController.createPost);
