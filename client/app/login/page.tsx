@@ -25,7 +25,6 @@ export default function Login() {
   const { login } = useAuthStore();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = '/dashboard';
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,7 +41,7 @@ export default function Login() {
       const response = await authService.login({ email, password });
       login(response.user);
       toast.success(`Welcome back, ${response.user.name}!`);
-      router.push(redirectTo);
+      router.push('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Login failed');
       toast.error(err.message || 'Login failed');

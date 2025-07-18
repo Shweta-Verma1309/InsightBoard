@@ -74,9 +74,9 @@ axiosClient.interceptors.response.use(
     }
     
     // Handle other errors
-    if (error.response?.status === 403) {
+    if (error.response && error.response.status === 403) {
       toast.error('You do not have permission to perform this action');
-    } else if (error.response?.status >= 500) {
+    } else if (error.response && error.response.status >= 500) {
       toast.error('Server error. Please try again later.');
     }
     

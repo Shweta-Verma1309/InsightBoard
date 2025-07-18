@@ -25,7 +25,7 @@ import { motion } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function Dashboard() {
-  const { user } = useAuthStore();
+  const { user, isAuthenticated, isLoading } = useAuthStore();
   const { boards, setBoards, setLoading } = useBoardStore();
   const [recentPosts, setRecentPosts] = useState<any[]>([]);
   const [stats, setStats] = useState({
@@ -39,13 +39,13 @@ export default function Dashboard() {
     const fetchDashboardData = async () => {
       setLoading(true);
       try {
-        const boardsData = await boardService.mockGetBoards();
+        const boardsData = await boardService.getBoards();
         setBoards(boardsData);
         
         // Get recent posts from all boards
         const allPosts = [];
         for (const board of boardsData.slice(0, 2)) {
-          const posts = await boardService.mockGetPosts(board.id);
+          const posts = await boardService.getPosts(board.id);
           allPosts.push(...posts.map(post => ({ ...post, boardTitle: board.title })));
         }
         

@@ -1,5 +1,6 @@
 import axiosClient from '@/lib/axiosClient';
 import { Board, Post, Comment } from '@/store/boardStore';
+import axios, { AxiosError } from 'axios';
 
 interface CreateBoardData {
   title: string;
@@ -35,8 +36,13 @@ export const boardService = {
     try {
       const response = await axiosClient.get(`/boards/${id}`);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch board');
+    } catch (error: unknown) {
+       if (axios.isAxiosError(error)) {
+      const message = error.response?.data?.message || 'Failed to fetch board';
+      throw new Error(message);
+    } else {
+      throw new Error('An unexpected error occurred');
+    }
     }
   },
 
@@ -45,7 +51,12 @@ export const boardService = {
       const response = await axiosClient.post('/boards', boardData);
       return response.data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create board');
+      if (axios.isAxiosError(error)) {
+      const message = error.response?.data?.message || 'Failed to fetch board';
+      throw new Error(message);
+    } else {
+      throw new Error('An unexpected error occurred');
+    }
     }
   },
 
