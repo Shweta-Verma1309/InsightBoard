@@ -23,17 +23,12 @@ interface AuthResponse {
 export const authService = {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
-      const response = await axiosClient.post('/auth/login', credentials);
-      const { user, accessToken, refreshToken } = response.data;
-      
-      // Set cookies
-      Cookies.set('accessToken', accessToken, { expires: 1 }); // 1 day
-      Cookies.set('refreshToken',refreshToken, { expires: 7 }); // 7 days
-       
-      // Set user details in cookies
-      Cookies.set('userName', user.name, { expires: 1 });
-      Cookies.set('userEmail', user.email, { expires: 1 });
-      Cookies.set('userRole', user.role, { expires: 1 });
+      const response = await axiosClient.post('/auth/login', credentials)
+      localStorage.setItem('accessToken', response?.data?.token);
+      localStorage.setItem('userName', response?.data?.user?.name);
+      localStorage.setItem('userEmail', response?.data?.user?.email);
+      localStorage.setItem('userRole', response?.data?.user?.role);
+      localStorage.setItem('userId', response?.data?.user?.id);
 
       return response.data;
     } catch (error: any) {
