@@ -28,23 +28,23 @@ export const authService = {
       
       // Set cookies
       Cookies.set('accessToken', accessToken, { expires: 1 }); // 1 day
-      Cookies.set('refreshToken', refreshToken, { expires: 7 }); // 7 days
-      
+      Cookies.set('refreshToken',refreshToken, { expires: 7 }); // 7 days
+       
+      // Set user details in cookies
+      Cookies.set('userName', user.name, { expires: 1 });
+      Cookies.set('userEmail', user.email, { expires: 1 });
+      Cookies.set('userRole', user.role, { expires: 1 });
+
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Login failed');
     }
   },
 
-  async signup(credentials: SignupCredentials): Promise<AuthResponse> {
+  async signup(data: any): Promise<AuthResponse> {
     try {
-      const response = await axiosClient.post('/auth/register', credentials);
-      const { user, accessToken, refreshToken } = response.data;
-      
-      // Set cookies
-      Cookies.set('accessToken', accessToken, { expires: 1 }); // 1 day
-      Cookies.set('refreshToken', refreshToken, { expires: 7 }); // 7 days
-      
+      const response = await axiosClient.post('/auth/register', data);
+            
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Signup failed');
@@ -70,6 +70,11 @@ export const authService = {
       // Clear cookies
       Cookies.remove('accessToken');
       Cookies.remove('refreshToken');
+      // ✅ In the finally block — clear user detail cookies too
+      Cookies.remove('userName');
+      Cookies.remove('userEmail');
+      Cookies.remove('userRole');
+
     }
   },
 
@@ -105,7 +110,9 @@ export const authService = {
       
       Cookies.set('accessToken', mockResponse.accessToken, { expires: 1 });
       Cookies.set('refreshToken', mockResponse.refreshToken, { expires: 7 });
-      
+      Cookies.set('userName', mockResponse.user.name, { expires: 1 });
+      Cookies.set('userEmail', mockResponse.user.email, { expires: 1 });
+      Cookies.set('userRole', mockResponse.user.role, { expires: 1 });
       return mockResponse;
     }
     
@@ -125,7 +132,9 @@ export const authService = {
       
       Cookies.set('accessToken', mockResponse.accessToken, { expires: 1 });
       Cookies.set('refreshToken', mockResponse.refreshToken, { expires: 7 });
-      
+      Cookies.set('userName', mockResponse.user.name, { expires: 1 });
+      Cookies.set('userEmail', mockResponse.user.email, { expires: 1 });
+      Cookies.set('userRole', mockResponse.user.role, { expires: 1 });
       return mockResponse;
     }
     
@@ -149,7 +158,11 @@ export const authService = {
     
     Cookies.set('accessToken', mockResponse.accessToken, { expires: 1 });
     Cookies.set('refreshToken', mockResponse.refreshToken, { expires: 7 });
-    
+    // ✅ After setting mock tokens
+    Cookies.set('userName', mockResponse.user.name, { expires: 1 });
+    Cookies.set('userEmail', mockResponse.user.email, { expires: 1 });
+    Cookies.set('userRole', mockResponse.user.role, { expires: 1 });
+
     return mockResponse;
   }
 };

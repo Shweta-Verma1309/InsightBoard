@@ -47,7 +47,7 @@ export default function Signup() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    console.log("suru hogya");
+
     e.preventDefault();
 
     console.log("Form Data Submitted:", {
@@ -59,7 +59,7 @@ export default function Signup() {
   });
 
     setError('');
-    console.log("1b");
+    
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
@@ -74,18 +74,18 @@ export default function Signup() {
     setIsLoading(true);
 
     try {
-      console.log("1");
       const response = await authService.signup({
         name: formData.name,
         email: formData.email,
         password: formData.password,
         role: formData.role,
       });
-      console.log("2");
-      login(response.user);
+      
       toast.success(`Welcome to InsightBoard, ${response.user.name}!`);
-      console.log("3");
-      router.push('/dashboard');
+      
+      //login(response.user);
+      //toast.success(`Welcome to InsightBoard, ${response.user.name}!`);
+      //router.push('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Signup failed');
       toast.error(err.message || 'Signup failed');

@@ -22,6 +22,8 @@ interface AuthState {
   login: (user: User) => void;
   logout: () => void;
   clearAuth: () => void;
+  setUserFromCookies: () => void;
+
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -65,7 +67,26 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: false,
           isLoading: false,
         });
-      },
+      },setUserFromCookies: () => {
+      const name = Cookies.get('name');
+      const email = Cookies.get('email');
+      const role = Cookies.get('role');
+      const accessToken = Cookies.get('accessToken');
+
+      if (name && email && role && accessToken) {
+        set({
+          user: {
+            id: '',
+            email,
+            name,
+            role: role as 'admin' | 'member' | 'viewer',
+            createdAt: '',
+          },
+          isAuthenticated: true,
+        });
+  }
+}
+
     }),
     {
       name: 'auth-storage',

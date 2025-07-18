@@ -25,15 +25,21 @@ export default function Login() {
   const { login } = useAuthStore();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get('redirect') || '/dashboard';
+  const redirectTo = '/dashboard';
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
+  console.log('Attempting login with credentials:', {
+      email,
+      password,
+    });
+
     try {
-      const response = await authService.mockLogin({ email, password });
+      const response = await authService.login({ email, password });
       login(response.user);
       toast.success(`Welcome back, ${response.user.name}!`);
       router.push(redirectTo);
@@ -71,7 +77,7 @@ export default function Login() {
                   <MessageSquare className="w-6 h-6 text-white" />
                 </div>
               </div>
-              <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
+              <CardTitle className="text-2xl font-bold">Welcome IBs</CardTitle>
               <CardDescription className="text-base">
                 Sign in to your InsightBoard account
               </CardDescription>
