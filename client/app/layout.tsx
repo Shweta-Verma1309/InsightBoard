@@ -8,11 +8,18 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'InsightBoard - Real-time Feedback & Collaboration',
-  description: 'A powerful real-time feedback and collaboration dashboard for teams to brainstorm ideas, collect feedback, vote on suggestions, and collaborate seamlessly.',
+  description:
+    'A powerful real-time feedback and collaboration dashboard for teams to brainstorm ideas, collect feedback, vote on suggestions, and collaborate seamlessly.',
   keywords: 'feedback, collaboration, real-time, dashboard, team, brainstorm, voting',
   authors: [{ name: 'InsightBoard Team' }],
-  viewport: 'width=device-width, initial-scale=1',
 };
+
+// 👇 Move viewport into its own export
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+};
+
 
 export default function RootLayout({
   children,

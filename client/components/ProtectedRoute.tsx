@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import { authService } from '@/services/authService';
-import Cookies from 'js-cookie';
 import { Loader2 } from 'lucide-react';
+import type { User } from '@/store/authStore'; 
+
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -13,14 +14,14 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
-  const { user, isAuthenticated, setUser, setLoading, clearAuth } = useAuthStore();
+  const { user, isAuthenticated, setUser, setLoading, clearAuth } = useAuthStore((state)=> state);
   const router = useRouter();
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
-      const accessToken = Cookies.get('accessToken');
-      const refreshToken = Cookies.get('refreshToken');
+      const accessToken = localStorage.getItem('accessToken');
+      const refreshToken = localStorage.getItem('refreshToken');
 
       if (!accessToken && !refreshToken) {
         clearAuth();
@@ -32,13 +33,17 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
         try {
           // Try to get user data
           const userData = await authService.getMe();
+        
           setUser(userData);
+        
         } catch (error) {
           // If getting user data fails, try to refresh token
           try {
             await authService.refreshToken();
             const userData = await authService.getMe();
-            setUser(userData);
+          
+          setUser(userData);
+        
           } catch (refreshError) {
             clearAuth();
             router.push('/login');
@@ -61,7 +66,7 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
       const requiredRoleLevel = roleHierarchy[requiredRole];
 
       if (userRoleLevel < requiredRoleLevel) {
-        router.push('/dashboard');
+        router.push('/');
         return;
       }
     }

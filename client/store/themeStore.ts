@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import Cookies from 'js-cookie';
 
 interface ThemeState {
   theme: 'light' | 'dark';
@@ -10,7 +9,7 @@ interface ThemeState {
     sortBy: 'recent' | 'votes' | 'comments';
     tags: string[];
   };
-  
+
   // Actions
   setTheme: (theme: 'light' | 'dark') => void;
   toggleTheme: () => void;
@@ -28,33 +27,33 @@ export const useThemeStore = create<ThemeState>()(
         sortBy: 'recent',
         tags: [],
       },
-      
+
       setTheme: (theme) => {
         set({ theme });
-        Cookies.set('theme', theme, { expires: 365 });
+        // ✅ DOM update only — no cookies
         document.documentElement.classList.toggle('dark', theme === 'dark');
       },
-      
+
       toggleTheme: () => {
         const currentTheme = get().theme;
         const newTheme = currentTheme === 'light' ? 'dark' : 'light';
         get().setTheme(newTheme);
       },
-      
+
       setLastVisitedBoard: (boardId) => {
         set({ lastVisitedBoard: boardId });
-        Cookies.set('lastVisitedBoard', boardId, { expires: 30 });
+        // ✅ No cookie needed — stored via Zustand persist
       },
-      
+
       setFilterPreferences: (preferences) => {
         set((state) => ({
           filterPreferences: { ...state.filterPreferences, ...preferences }
         }));
-        Cookies.set('filterPreferences', JSON.stringify(get().filterPreferences), { expires: 30 });
+        // ✅ No cookie needed — stored via Zustand persist
       },
     }),
     {
-      name: 'theme-storage',
+      name: 'theme-storage', // saved in localStorage as "theme-storage"
     }
   )
 );

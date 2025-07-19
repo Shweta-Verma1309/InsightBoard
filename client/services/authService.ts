@@ -1,6 +1,5 @@
 import axiosClient from '@/lib/axiosClient';
 import { User } from '@/store/authStore';
-import Cookies from 'js-cookie';
 
 interface LoginCredentials {
   email: string;
@@ -21,30 +20,25 @@ interface AuthResponse {
 }
 
 export const authService = {
-  async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    try {
-      const response = await axiosClient.post('/auth/login', credentials);
-      const { user, accessToken, refreshToken } = response.data;
-      
-      // Set cookies
-      Cookies.set('accessToken', accessToken, { expires: 1 }); // 1 day
-      Cookies.set('refreshToken',refreshToken, { expires: 7 }); // 7 days
-       
-      // Set user details in cookies
-      Cookies.set('userName', user.name, { expires: 1 });
-      Cookies.set('userEmail', user.email, { expires: 1 });
-      Cookies.set('userRole', user.role, { expires: 1 });
+ async login(credentials: LoginCredentials): Promise<AuthResponse> {
+  try {
+    const response = await axiosClient.post('/auth/login', credentials);
 
-      return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Login failed');
+    const { accessToken, refreshToken, user } = response.data;
+
+    // Store tokens in localStorage
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+
+    return { accessToken, refreshToken, user };
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || 'Login failed');
     }
   },
 
-  async signup(data: any): Promise<AuthResponse> {
+  async signup(data: SignupCredentials): Promise<AuthResponse> {
     try {
       const response = await axiosClient.post('/auth/register', data);
-            
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Signup failed');
@@ -52,117 +46,55 @@ export const authService = {
   },
 
   async getMe(): Promise<User> {
-    try {
-      const response = await axiosClient.get('/auth/me');
-      return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to get user data');
-    }
-  },
+  try {
+    const accessToken = localStorage.getItem('accessToken');
+    if (!accessToken) throw new Error('Access token not found');
+
+    const response = await axiosClient.get('/auth/me', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || 'Failed to get user data');
+  }
+},
 
   async logout(): Promise<void> {
     try {
       await axiosClient.post('/auth/logout');
     } catch (error) {
-      // Even if logout fails on server, clear local data
       console.error('Logout error:', error);
     } finally {
-      // Clear cookies
-      Cookies.remove('accessToken');
-      Cookies.remove('refreshToken');
-      // ✅ In the finally block — clear user detail cookies too
-      Cookies.remove('userName');
-      Cookies.remove('userEmail');
-      Cookies.remove('userRole');
-
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('name');
+      localStorage.removeItem('email');
+      localStorage.removeItem('role');
     }
   },
 
   async refreshToken(): Promise<string> {
-    try {
-      const response = await axiosClient.post('/auth/refresh');
-      const { accessToken } = response.data;
-      
-      Cookies.set('accessToken', accessToken, { expires: 1 });
-      return accessToken;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Token refresh failed');
-    }
-  },
+  try {
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (!refreshToken) throw new Error('Refresh token not found');
 
-  // Mock functions for demo
-  async mockLogin(credentials: LoginCredentials): Promise<AuthResponse> {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    if (credentials.email === 'admin@insightboard.com' && credentials.password === 'admin123') {
-      const mockResponse = {
-        user: {
-          id: '1',
-          email: 'admin@insightboard.com',
-          name: 'Admin User',
-          role: 'admin' as const,
-          avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=400',
-          createdAt: new Date().toISOString()
-        },
-        accessToken: 'mock-access-token-' + Date.now(),
-        refreshToken: 'mock-refresh-token-' + Date.now()
-      };
-      
-      Cookies.set('accessToken', mockResponse.accessToken, { expires: 1 });
-      Cookies.set('refreshToken', mockResponse.refreshToken, { expires: 7 });
-      Cookies.set('userName', mockResponse.user.name, { expires: 1 });
-      Cookies.set('userEmail', mockResponse.user.email, { expires: 1 });
-      Cookies.set('userRole', mockResponse.user.role, { expires: 1 });
-      return mockResponse;
-    }
-    
-    if (credentials.email === 'member@insightboard.com' && credentials.password === 'member123') {
-      const mockResponse = {
-        user: {
-          id: '2',
-          email: 'member@insightboard.com',
-          name: 'Team Member',
-          role: 'member' as const,
-          avatar: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=400',
-          createdAt: new Date().toISOString()
-        },
-        accessToken: 'mock-access-token-' + Date.now(),
-        refreshToken: 'mock-refresh-token-' + Date.now()
-      };
-      
-      Cookies.set('accessToken', mockResponse.accessToken, { expires: 1 });
-      Cookies.set('refreshToken', mockResponse.refreshToken, { expires: 7 });
-      Cookies.set('userName', mockResponse.user.name, { expires: 1 });
-      Cookies.set('userEmail', mockResponse.user.email, { expires: 1 });
-      Cookies.set('userRole', mockResponse.user.role, { expires: 1 });
-      return mockResponse;
-    }
-    
-    throw new Error('Invalid credentials');
-  },
+    const response = await axiosClient.post('/auth/refresh', {
+      refreshToken, // <-- send refreshToken in request body
+    });
 
-  async mockSignup(credentials: SignupCredentials): Promise<AuthResponse> {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const mockResponse = {
-      user: {
-        id: Date.now().toString(),
-        email: credentials.email,
-        name: credentials.name,
-        role: credentials.role || 'member' as const,
-        createdAt: new Date().toISOString()
-      },
-      accessToken: 'mock-access-token-' + Date.now(),
-      refreshToken: 'mock-refresh-token-' + Date.now()
-    };
-    
-    Cookies.set('accessToken', mockResponse.accessToken, { expires: 1 });
-    Cookies.set('refreshToken', mockResponse.refreshToken, { expires: 7 });
-    // ✅ After setting mock tokens
-    Cookies.set('userName', mockResponse.user.name, { expires: 1 });
-    Cookies.set('userEmail', mockResponse.user.email, { expires: 1 });
-    Cookies.set('userRole', mockResponse.user.role, { expires: 1 });
+    const { accessToken, refreshToken: newRefreshToken } = response.data;
 
-    return mockResponse;
+    // Store new tokens
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', newRefreshToken);
+
+    return accessToken;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || 'Token refresh failed');
   }
+}
+
 };

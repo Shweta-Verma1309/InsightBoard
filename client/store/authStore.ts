@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import Cookies from 'js-cookie';
 
 export interface User {
   id: string;
@@ -15,15 +14,23 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  
-  // Actions
+
   setUser: (user: User) => void;
   setLoading: (loading: boolean) => void;
-  login: (user: User) => void;
+  login: (user: User, tokens: { accessToken: string; refreshToken: string }) => void;
   logout: () => void;
   clearAuth: () => void;
-  setUserFromCookies: () => void;
+}
 
+function clearAuthStorage() {
+  ['accessToken', 'refreshToken', 'name', 'email', 'role'].forEach((key) =>
+    localStorage.removeItem(key)
+  );
+}
+
+// Optional: reusable utility to get the current access token
+export function getAccessToken(): string {
+  return localStorage.getItem('accessToken') || '';
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -32,71 +39,53 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAuthenticated: false,
       isLoading: false,
-      
-      setUser: (user: User) => set({ user, isAuthenticated: true }),
-      
+
+      setUser: (user: User) => {
+        set({ user, isAuthenticated: true });
+      },
+
       setLoading: (loading: boolean) => set({ isLoading: loading }),
-      
-      login: (user: User) => {
+
+      login: (user: User, tokens: { accessToken: string; refreshToken: string }) => {
+        localStorage.setItem('accessToken', tokens.accessToken);
+        localStorage.setItem('refreshToken', tokens.refreshToken);
+        localStorage.setItem('name', user.name);
+        localStorage.setItem('email', user.email);
+        localStorage.setItem('role', user.role);
+
         set({
           user,
           isAuthenticated: true,
           isLoading: false,
         });
       },
-      
+
       logout: () => {
-        // Clear cookies
-        Cookies.remove('accessToken');
-        Cookies.remove('refreshToken');
-        
+         clearAuthStorage();
+
         set({
           user: null,
           isAuthenticated: false,
           isLoading: false,
         });
       },
-      
+
       clearAuth: () => {
-        // Clear cookies
-        Cookies.remove('accessToken');
-        Cookies.remove('refreshToken');
-        
+         clearAuthStorage();
+
         set({
           user: null,
           isAuthenticated: false,
           isLoading: false,
         });
-      },setUserFromCookies: () => {
-      const name = Cookies.get('name');
-      const email = Cookies.get('email');
-      const role = Cookies.get('role');
-      const accessToken = Cookies.get('accessToken');
-
-      if (name && email && role && accessToken) {
-        set({
-          user: {
-            id: '',
-            email,
-            name,
-            role: role as 'admin' | 'member' | 'viewer',
-            createdAt: '',
-          },
-          isAuthenticated: true,
-        });
-  }
-}
-
+      },
     }),
     {
       name: 'auth-storage',
-      partialize: (state) => ({ 
-        user: state.user, 
-        isAuthenticated: state.isAuthenticated 
+      partialize: (state) => ({
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
       }),
-     onRehydrateStorage: () => (state) => {
-        state?.setLoading(false); // mark loading complete after hydration
-      },
     }
   )
 );

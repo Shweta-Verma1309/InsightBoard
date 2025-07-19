@@ -39,7 +39,10 @@ export default function Login() {
 
     try {
       const response = await authService.login({ email, password });
-      login(response.user);
+      login(response.user,{
+          accessToken: response.accessToken,
+          refreshToken: response.refreshToken,
+        });
       toast.success(`Welcome back, ${response.user.name}!`);
       router.push('/dashboard');
     } catch (err: any) {
