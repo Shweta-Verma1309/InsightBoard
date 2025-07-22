@@ -59,6 +59,7 @@ interface BoardState {
   
   // Actions
   setBoards: (boards: Board[]) => void;
+  addBoard: (board: Board) => void;
   setCurrentBoard: (board: Board | null) => void;
   setPosts: (posts: Post[]) => void;
   setCurrentPost: (post: Post | null) => void;
@@ -67,11 +68,15 @@ interface BoardState {
   setFilterStatus: (status: string) => void;
   setSortBy: (sortBy: 'recent' | 'votes' | 'comments') => void;
   addPost: (post: Post) => void;
+  
   updatePost: (postId: string, updates: Partial<Post>) => void;
   deletePost: (postId: string) => void;
   addComment: (postId: string, comment: Comment) => void;
   updateComment: (postId: string, commentId: string, content: string) => void;
   deleteComment: (postId: string, commentId: string) => void;
+  updateBoard: (boardId: string, updates: Partial<Board>) => void;
+  resetBoardState: () => void;
+  votePost: (postId: string, vote: 'up' | 'down' | null) => void;
 }
 
 export const useBoardStore = create<BoardState>((set, get) => ({
@@ -94,7 +99,9 @@ export const useBoardStore = create<BoardState>((set, get) => ({
   setSortBy: (sortBy) => set({ sortBy }),
   
   addPost: (post) => set((state) => ({ posts: [post, ...state.posts] })),
-  
+
+  addBoard: (board) => set((state) => ({ boards: [board, ...state.boards] })),
+
   updatePost: (postId, updates) => set((state) => ({
     posts: state.posts.map(post => 
       post.id === postId ? { ...post, ...updates } : post
@@ -134,6 +141,55 @@ export const useBoardStore = create<BoardState>((set, get) => ({
         ? {
             ...post,
             comments: post.comments.filter(comment => comment.id !== commentId)
+          }
+        : post
+    )
+  })),
+  updateBoard: (boardId, updates) => set((state) => ({
+    boards: state.boards.map(board =>
+      board.id === boardId ? { ...board, ...updates } : board
+    ),
+    currentBoard: state.currentBoard?.id === boardId
+      ? { ...state.currentBoard, ...updates }
+      : state.currentBoard
+  })),
+
+  resetBoardState: () => set({
+    boards: [],
+    currentBoard: null,
+    posts: [],
+    currentPost: null,
+    isLoading: false,
+    searchQuery: '',
+    filterStatus: 'all',
+    sortBy: 'recent'
+  }),
+
+  votePost: (postId, vote) => set((state) => ({
+    posts: state.posts.map(post =>
+      post.id === postId
+        ? {
+            ...post,
+            votes: {
+              ...post.votes,
+              userVote: vote,
+              upvotes:
+                vote === 'up'
+                  ? post.votes.userVote === 'up'
+                    ? post.votes.upvotes
+                    : post.votes.upvotes + 1
+                  : vote === null && post.votes.userVote === 'up'
+                    ? post.votes.upvotes - 1
+                    : post.votes.upvotes,
+              downvotes:
+                vote === 'down'
+                  ? post.votes.userVote === 'down'
+                    ? post.votes.downvotes
+                    : post.votes.downvotes + 1
+                  : vote === null && post.votes.userVote === 'down'
+                    ? post.votes.downvotes - 1
+                    : post.votes.downvotes,
+            }
           }
         : post
     )

@@ -45,10 +45,11 @@ export default function BoardsPage() {
     const fetchBoards = async () => {
       setLoading(true);
       try {
-        const boardsData = await boardService.mockGetBoards();
+        const boardsData = await boardService.getBoards();
         setBoards(boardsData);
       } catch (error) {
         console.error('Failed to fetch boards:', error);
+        
       } finally {
         setLoading(false);
       }
@@ -56,6 +57,25 @@ export default function BoardsPage() {
 
     fetchBoards();
   }, [setBoards, setLoading]);
+
+   // Refresh boards when returning from board creation
+  useEffect(() => {
+    const handleFocus = () => {
+      // Refetch boards when user returns to this page
+      const fetchBoards = async () => {
+        try {
+          const boardsData = await boardService.getBoards();
+          setBoards(boardsData);
+        } catch (error) {
+          console.error('Failed to refresh boards:', error);
+        }
+      };
+      fetchBoards();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [setBoards]);
 
   const filteredBoards = boards.filter(board => {
     const matchesSearch = board.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -313,13 +333,13 @@ export default function BoardsPage() {
                 {viewMode === 'grid' ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredBoards.map((board, index) => (
-                      <BoardCard key={board.id} board={board} index={index} />
+                      <BoardCard key={board.id ?? index} board={board} index={index} />
                     ))}
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {filteredBoards.map((board, index) => (
-                      <BoardListItem key={board.id} board={board} index={index} />
+                      <BoardListItem key={board.id ?? index} board={board} index={index} />
                     ))}
                   </div>
                 )}

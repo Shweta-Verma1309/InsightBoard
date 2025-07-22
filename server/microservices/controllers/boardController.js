@@ -1,18 +1,27 @@
 const Board = require('../../common/models/Board');
 
 class BoardController {
-  async createBoard(req, res, next) {
-    try {
-      const board = await Board.create({
-        ...req.body,
-        createdBy: req.user._id,
-        members: [req.user._id],
-      });
-      res.status(201).json(board);
-    } catch (err) {
-      next(err);
-    }
+ async createBoard(req, res, next) {
+  try {
+    const { title, description, tags, isPublic } = req.body;
+
+    const board = new Board({
+      title,
+      description,
+      tags,
+      isPublic,
+      createdBy: req.user._id,
+      members: [req.user._id],
+    });
+
+    await board.save();
+
+    res.status(201).json(board);
+  } catch (err) {
+    next(err);
   }
+}
+
 
   async getBoards(req, res, next) {
     try {

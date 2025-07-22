@@ -49,7 +49,8 @@ class AuthController {
         role: user.role,
         id : user._id,
       },
-      token: accessToken, // or return both tokens if needed
+      accessToken,
+      refreshToken,
     });
     } catch (err) {
       res.status(500).json({ error: "Login failed" });

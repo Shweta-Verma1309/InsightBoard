@@ -3,6 +3,7 @@ import { Board, Post, Comment } from '@/store/boardStore';
 import axios, { AxiosError } from 'axios';
 
 interface CreateBoardData {
+  createdBy: string;
   title: string;
   description: string;
   tags: string[];

@@ -45,6 +45,7 @@ export default function Dashboard() {
         // Get recent posts from all boards
         const allPosts = [];
         for (const board of boardsData.slice(0, 2)) {
+          if (!board.id) continue;
           const posts = await boardService.getPosts(board.id);
           allPosts.push(...posts.map(post => ({ ...post, boardTitle: board.title })));
         }
@@ -211,7 +212,7 @@ export default function Dashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {boards.slice(0, 3).map((board) => (
+                    {boards.slice(0, 3).filter(board => board.id).map((board) => (
                       <Link key={board.id} href={`/boards/${board.id}`}>
                         <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors cursor-pointer">
                           <div className="flex-1">

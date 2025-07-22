@@ -16,8 +16,6 @@ const axiosClient = axios.create({
 axiosClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('accessToken');
-
-    console.log('[TOKEN]', token); //debugging
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -41,7 +39,7 @@ axiosClient.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = localStorage.getItem('refreshToken'); // ✅ fix typo here
+        const refreshToken = localStorage.getItem('refreshToken');
 
         if (refreshToken) {
           const response = await axios.post(
@@ -56,10 +54,8 @@ axiosClient.interceptors.response.use(
 
           const { accessToken } = response.data;
 
-          // ✅ Save new access token to localStorage
           localStorage.setItem('accessToken', accessToken);
 
-          // ✅ Retry original request with new token
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
           return axiosClient(originalRequest);
         }
