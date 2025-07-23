@@ -16,7 +16,7 @@ class PostController {
 
   async getPostsByBoard(req, res, next) {
     try {
-      const query = { board: req.params.boardId };
+      const query = { board: req.params.id };
 
       if (req.query.tag) query.tags = req.query.tag;
       if (req.query.status) query.status = req.query.status;
