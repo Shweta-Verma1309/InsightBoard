@@ -93,11 +93,14 @@ export default function BoardDetailPage() {
       
       setLoading(true);
       try {
+        if (!boardId) {
+            console.log('BoardId nahi hai');
+        }
         // Fetch board details and posts
         console.log('SURU HOGA');
         const [boardData, postsData] = await Promise.all([
           boardService.getBoardById(boardId),
-          boardService.getPosts(boardId)
+          boardService.getPosts(boardId),
         ]);
         console.log("router.query.id", boardId);
 

@@ -34,7 +34,9 @@ class BoardController {
 
   async getBoardById(req, res, next) {
     try {
+      console.log("horha");
       const board = await Board.findById(req.params.id);
+      console.log(board);
       if (!board) return res.status(404).json({ message: 'Not found' });
       res.json(board);
     } catch (err) {

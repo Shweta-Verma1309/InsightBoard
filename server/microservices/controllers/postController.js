@@ -15,20 +15,32 @@ class PostController {
   }
 
   async getPostsByBoard(req, res, next) {
-    try {
-      const query = { board: req.params.id };
+  try {
+    const boardId = req.params.id;
 
-      if (req.query.tag) query.tags = req.query.tag;
-      if (req.query.status) query.status = req.query.status;
-
-      let postsQuery = Post.find(query).populate('createdBy', 'username');
-      if (req.query.sort === 'popular') postsQuery = postsQuery.sort({ upvotes: -1 });
-
-      const posts = await postsQuery;
-      res.json(posts);
-    } catch (err) {
-      next(err);
+    console.log(boardId);
+    if (!boardId || !mongoose.Types.ObjectId.isValid(boardId)) {
+      return res.status(400).json({ message: "Invalid or missing board ID" });
     }
+
+    const query = { board: boardId };
+    if (req.query.tag) query.tags = req.query.tag;
+    if (req.query.status) query.status = req.query.status;
+
+    let postsQuery = Post.find(query).populate('createdBy', 'username');
+
+    
+    if (req.query.sort === 'popular') {
+      postsQuery = postsQuery.sort({ upvotes: -1 });
+    } else {
+      postsQuery = postsQuery.sort({ createdAt: -1 }); 
+    }
+
+    const posts = await postsQuery;
+    res.json(posts);
+  } catch (err) {
+    next(err);
+  }
   }
 
   async getPost(req, res, next) {

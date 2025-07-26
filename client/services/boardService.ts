@@ -81,7 +81,7 @@ export const boardService = {
   // Post CRUD
   async getPosts(boardId: string): Promise<Post[]> {
     try {
-      const response = await axiosClient.get(`/boards/${boardId}/posts`);
+      const response = await axiosClient.get(`/boards/${boardId}`);
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to fetch posts');
